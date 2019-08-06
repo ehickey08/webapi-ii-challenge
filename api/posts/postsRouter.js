@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.post('/:id/comments', (req, res) => {
+router.post('/:id/comments', async (req, res) => {
     let { id } = req.params;
     let comment = req.body;
     if (!comment.text) {
