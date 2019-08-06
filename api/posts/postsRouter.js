@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.post('/:id/comments', async (req, res) => {
+router.post('/:id/comments', (req, res) => {
     let { id } = req.params;
     let comment = req.body;
     if (!comment.text) {
@@ -44,21 +44,21 @@ router.post('/:id/comments', async (req, res) => {
     }
 
     comment.post_id = +id;
-    Posts.insertComment(comment)
-        .then(id => {
-            Posts.findCommentById(id.id)
-                .then(comment => {
-                    res.status(201).json(comment);
+    Posts.insertComment(comment) 
+        .then(id => { 
+            Posts.findCommentById(id.id) 
+                .then(comment => { 
+                    return res.status(201).json(comment);
                 })
-                .catch(err => {
-                    res.status(500).json({
+                .catch(err => { 
+                    return res.status(500).json({
                         error:
                             'There was an error while saving the comment to the database',
                     });
                 });
         })
         .catch(err => {
-            res.status(404).json({
+            return res.status(404).json({
                 message: 'The post with the specified ID does not exist.',
             });
         });
@@ -66,9 +66,11 @@ router.post('/:id/comments', async (req, res) => {
 
 router.get('/', (req, res) => {
     Posts.find()
-        .then(posts => res.status(200).json(posts))
+        .then(posts => {
+            return res.status(200).json(posts);
+        })
         .catch(err => {
-            res.status(500).json({
+            return res.status(500).json({
                 error: 'The posts information could not be retrieved.',
             });
         });
@@ -78,14 +80,14 @@ router.get('/:id', (req, res) => {
     let { id } = req.params;
     Posts.findById(id)
         .then(post => {
-            if (post.length) res.status(200).json(post);
+            if (post.length) return res.status(200).json(post);
             else
-                res.status(404).json({
+                return res.status(404).json({
                     message: 'The post with the specified ID does not exist.',
                 });
         })
         .catch(err => {
-            res.status(500).json({
+            return res.status(500).json({
                 message: {
                     error: 'The post information could not be retrieved.',
                 },
@@ -100,16 +102,16 @@ router.get('/:id/comments', (req, res) => {
             if (post.length) {
                 Posts.findPostComments(id)
                     .then(comments => {
-                        res.status(200).json(comments);
+                        return res.status(200).json(comments);
                     })
                     .catch(err => {
-                        res.status(500).json({
+                        return res.status(500).json({
                             error:
                                 'The comments information could not be retrieved.',
                         });
                     });
             } else
-                res.status(404).json({
+                return res.status(404).json({
                     error: 'The post with the specified ID does not exist.',
                 });
         })
@@ -127,13 +129,13 @@ router.delete('/:id', (req, res) => {
             .then(amt => {
                 if (amt) return res.status(200).json(post);
                 else
-                    res.status(404).json({
+                    return res.status(404).json({
                         message:
                             'The post with the specified ID does not exist.',
                     });
             })
             .catch(err => {
-                res.status(500).json({
+                return res.status(500).json({
                     error: 'The post could not be removed',
                 });
             });
@@ -147,7 +149,7 @@ router.put('/:id', (req, res) => {
         return res.status(400).json({
             errorMessage: 'Please provide title and contents for the post.',
         });
-    
+
     Posts.update(id, updatedPost)
         .then(amt => {
             if (amt) {
@@ -168,11 +170,9 @@ router.put('/:id', (req, res) => {
             }
         })
         .catch(err => {
-            return res
-                .status(500)
-                .json({
-                    error: 'There was an error after updating your post.',
-                });
+            return res.status(500).json({
+                error: 'There was an error after updating your post.',
+            });
         });
 });
 
